@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
+    "test": "jest",
     "pack": "ncc build"
   },
   "repository": {
@@ -17,14 +18,30 @@
   "bugs": {
     "url": "https://github.com/mike-neck/detect-newer-action/issues"
   },
+  "jest": {
+    "moduleFileExtensions": ["ts", "js"],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    }
+  },
   "homepage": "https://github.com/mike-neck/detect-newer-action#readme",
   "devDependencies": {
+    "@types/jest": "^26.0.4",
+    "@types/js-yaml": "^3.12.5",
     "@types/node": "^14.0.22",
     "@zeit/ncc": "^0.22.3",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
     "typescript": "^3.9.6"
   },
   "dependencies": {
     "@actions/core": "^1.2.4",
-    "@actions/github": "^4.0.0"
+    "@actions/github": "^4.0.0",
+    "js-yaml": "^3.14.0"
   }
 }
