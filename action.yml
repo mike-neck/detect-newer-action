@@ -1,0 +1,16 @@
+name: 'detect-newer-action'
+description: 'Detects newer actions applied to your workflow.'
+runs:
+  using: node12
+  main: index.js
+inputs:
+  excludes:
+    description: "Exclude pattern filters of action's name with regex. Multiple pattern is available via separating by comma."
+    required: false
+  output-file:
+    description: "Output file name. Output file format is json. Empty or null then no output. Default empty"
+    required: false
+branding:
+  icon: package
+  color: yellow
+author: mike-neck
