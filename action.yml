@@ -5,7 +5,10 @@ runs:
   main: dist/index.js
 inputs:
   exclude-actions:
-    description: "Exclude pattern filters of action's name with regex. Multiple pattern is available via separating by comma."
+    description: "Exclude pattern filters of action's name with regex. Multiple pattern is available via separating with comma."
+    required: false
+  exclude-workflows:
+    description: "Exclude pattern filters of workflow file name with regex. Multiple pattern is available via separating with comma."
     required: false
   output-file:
     description: "Output file name. Output file format is json. Empty or null then no output. Default empty"
