@@ -4,7 +4,7 @@ runs:
   using: node12
   main: dist/index.js
 inputs:
-  excludes:
+  exclude-actions:
     description: "Exclude pattern filters of action's name with regex. Multiple pattern is available via separating by comma."
     required: false
   output-file:
