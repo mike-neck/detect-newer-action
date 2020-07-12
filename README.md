@@ -1,2 +1,2 @@
 # detect-newer-action
-An action than detects newer actions applied to your workflow.
+An action that detects newer actions applied to your workflow.
