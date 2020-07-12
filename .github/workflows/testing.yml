@@ -11,8 +11,25 @@ jobs:
       - name: check out
         uses: actions/checkout@v2
 
+      - name: setup node
+        uses: actions/setup-node@vv1.4.2
+        with:
+          node-version: 12
+
+      - name: setup project
+        run: npm install
+
+      - name: test
+        run: npm test
+
+      - name: build
+        run: |
+          npm run build
+          npm run pack
+
       - name: example
         uses: ./
         with:
-          excludes: '.+'
+          exclude-actions: 'example'
+          exclude-workflows: 'example.yml'
           output-file: 'test.json'
