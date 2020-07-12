@@ -2,9 +2,10 @@
   "name": "detect-newer-action",
   "version": "v0.1.0",
   "description": "An action that detects newer actions applied to your workflow.",
-  "main": "lib/main.js",
+  "main": "lib/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "pack": "ncc build"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   "homepage": "https://github.com/mike-neck/detect-newer-action#readme",
   "devDependencies": {
     "@types/node": "^14.0.22",
+    "@zeit/ncc": "^0.22.3",
     "typescript": "^3.9.6"
   },
   "dependencies": {
