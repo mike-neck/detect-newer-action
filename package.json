@@ -1,0 +1,28 @@
+{
+  "name": "detect-newer-action",
+  "version": "v0.1.0",
+  "description": "An action that detects newer actions applied to your workflow.",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mike-neck/detect-newer-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mike-neck/detect-newer-action/issues"
+  },
+  "homepage": "https://github.com/mike-neck/detect-newer-action#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.22",
+    "typescript": "^3.9.6"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^4.0.0"
+  }
+}
