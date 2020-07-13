@@ -1,10 +1,18 @@
+import exp from "constants";
+
 export interface Either<L, R> {
     isRight(): boolean;
     map<N>(mapping: (R) => N): Either<L, N>
     flatMap<N>(mapping: (R) => Either<L, N>): Either<L, N>
     mapLeft<E>(mapping: (L) => E): Either<E, R>
-    right(defaultValue: R): R
-    left(defaultValue: L): L
+    fromRight(defaultValue: R): R
+    fromLeft(defaultValue: L): L
+
+    whenLeft(leftConsumer: (L) => void): EitherRightConsumption<R>;
+}
+
+export interface EitherRightConsumption<R> {
+    whenRight(rightConsumer: (R) => void);
 }
 
 class Left<L, R> implements Either<L, R>{
@@ -31,12 +39,21 @@ class Left<L, R> implements Either<L, R>{
         return new Left<E, R>(mapping(this.value));
     }
 
-    right(defaultValue: R): R {
+    fromRight(defaultValue: R): R {
         return defaultValue;
     }
 
-    left(defaultValue: L): L {
+    fromLeft(defaultValue: L): L {
         return this.value;
+    }
+
+    whenLeft(leftConsumer: (L) => void): EitherRightConsumption<R> {
+        const l = this.value;
+        return {
+            whenRight(rightConsumer: (R) => void) {
+                leftConsumer(l);
+            }
+        };
     }
 }
 
@@ -64,12 +81,21 @@ class Right<L, R> implements Either<L, R>{
         return new Right<E, R>(this.value);
     }
 
-    right(defaultValue: R): R {
+    fromRight(defaultValue: R): R {
         return this.value;
     }
 
-    left(defaultValue: L): L {
+    fromLeft(defaultValue: L): L {
         return defaultValue;
+    }
+
+    whenLeft(leftConsumer: (L) => void): EitherRightConsumption<R> {
+        const r = this.value;
+        return {
+            whenRight(rightConsumer: (R) => void) {
+                rightConsumer(r);
+            }
+        };
     }
 }
 

@@ -53,7 +53,7 @@ foo: test
     it('cannot parse yaml to Workflow', function () {
         const either = readWorkflow(invalidYamlMalFormat);
         expect(either.isRight()).toBe(false);
-        const failure = either.left("expected failure");
+        const failure = either.fromLeft("expected failure");
         expect(failure).toContain("invalid file contents");
     });
 });
