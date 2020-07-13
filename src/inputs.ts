@@ -3,7 +3,8 @@ import * as core from "@actions/core"
 export interface Inputs {
     outputFilePath: string | null
     excludeActions: string[]
-    excludeWorkflows: string[]
+
+    requireInspection(workflowFile: WorkflowFile): boolean
 }
 
 interface InputGetter {
@@ -30,9 +31,33 @@ function getInputFrom(getter: InputGetter): Inputs {
     const exWork = ew == null? "": ew.trim();
     const excludeWorkflows = exWork.split(",");
 
-    return {
-        outputFilePath: outputFilePath,
-        excludeActions: excludeActions,
-        excludeWorkflows: excludeWorkflows
-    };
+    return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows);
+}
+
+export module TestingOnly {
+    export function inputs(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[]): Inputs {
+        return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows);
+    }
+}
+
+class InputsImpl implements Inputs {
+
+    readonly excludeActions: string[];
+    readonly excludeWorkflows: string[];
+    readonly outputFilePath: string | null;
+
+    constructor(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[]) {
+        this.outputFilePath = outputFilePath;
+        this.excludeActions = excludeActions;
+        this.excludeWorkflows = excludeWorkflows;
+    }
+
+    requireInspection(workflowFile: WorkflowFile): boolean {
+        for (let excludeWorkflow of this.excludeWorkflows) {
+            if (workflowFile.name.match(RegExp(excludeWorkflow))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
