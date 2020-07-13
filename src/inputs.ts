@@ -1,4 +1,5 @@
 import * as core from "@actions/core"
+import {WorkflowFile} from "./types";
 
 export interface Inputs {
     outputFilePath: string | null
