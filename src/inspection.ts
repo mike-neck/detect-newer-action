@@ -26,14 +26,14 @@ export function listTagApi(inputs: Inputs): ListTagsApi {
                     repo: repo
                 });
                 if (response.status < 200 || 300 <= response.status) {
-                    return Promise.resolve(left(response.status));
+                    return Promise.resolve(left<number, string>(response.status));
                 }
                 const data: ReposListTagsResponseData = response.data;
                 if (data.length == 0) {
-                    return Promise.resolve(right(""));
+                    return Promise.resolve(right<number, string>(""));
                 }
                 const tag = data.sort((l, r) => r.name.localeCompare(l.name) )[0].name;
-                return Promise.resolve(right(tag));
+                return Promise.resolve(right<number, string>(tag));
             };
             return f();
         }
