@@ -7,19 +7,7 @@ import {InspectionResult} from "./types";
 import {inspectWorkflow, listTagApi} from "./inspection";
 import {Both, bothBuilder} from "./both";
 
-try {
-    const excludes = core.getInput("exclude-actions");
-    const outputFile = core.getInput("output-file");
-    console.info(`excludes: ${excludes}, outputFile: ${outputFile}`)
-
-    listWorkflowFiles().then(files => {
-        files.forEach(file => {
-            console.info(`in .github/workflows: ${file}`)
-        });
-    })
-} catch (e) {
-    core.setFailed(`error: ${e}`)
-}
+run().catch(e => console.error(`unexpected error: ${e}`));
 
 async function run(): Promise<void> {
     const inputs = getInputs();
