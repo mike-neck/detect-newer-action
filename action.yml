@@ -13,6 +13,9 @@ inputs:
   output-file:
     description: "Output file name. Output file format is json. Empty or null then no output. Default empty"
     required: false
+  token:
+    description: "Github token that is able to call repo-list-tags api.(secrets.GITHUB_TOKEN)"
+    required: true
 branding:
   icon: package
   color: yellow

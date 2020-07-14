@@ -1,11 +1,43 @@
 import {Workflow} from "./workflow";
-import {Either} from "./either";
+import {Either, left, right} from "./either";
 import {Inputs} from "./inputs";
 import {Both, bothBuilder} from "./both";
 import {Inspection, InspectionResult} from "./types";
 
+import * as core from "@actions/core";
+import * as github from "@actions/github";
+import {Octokit} from "@octokit/rest";
+
+import { RestEndpointMethods } from "@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types";
+import { OctokitResponse } from "@octokit/types/dist-types/OctokitResponse"
+import { ReposListTagsResponseData } from "@octokit/types/dist-types/generated/Endpoints"
+
 export interface ListTagsApi {
     call(owner: string, repo: string): Promise<Either<number, string>>
+}
+
+export function listTagApi(inputs: Inputs): ListTagsApi {
+    const octokit = github.getOctokit(inputs.token) as RestEndpointMethods;
+    return {
+        call(owner: string, repo: string): Promise<Either<number, string>> {
+            const f = async () => {
+                const response: OctokitResponse<ReposListTagsResponseData> = await octokit.repos.listTags({
+                    owner: owner,
+                    repo: repo
+                });
+                if (response.status < 200 || 300 <= response.status) {
+                    return Promise.resolve(left(response.status));
+                }
+                const data: ReposListTagsResponseData = response.data;
+                if (data.length == 0) {
+                    return Promise.resolve(right(""));
+                }
+                const tag = data.sort((l, r) => r.name.localeCompare(l.name) )[0].name;
+                return Promise.resolve(right(tag));
+            };
+            return f();
+        }
+    }
 }
 
 async function apiCall(api: ListTagsApi, owner: string, repo: string): Promise<Either<number, string>> {
@@ -18,7 +50,7 @@ export module TestOnly {
     }
 }
 
-async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, InspectionResult>> {
+export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, InspectionResult>> {
     const builder = bothBuilder<string, InspectionResult>();
     for (let [jobName, steps] of workflow.jobs) {
         const inspections = new Array<Inspection>();

@@ -9,6 +9,8 @@ export interface Either<L, R> {
     fromLeft(defaultValue: L): L
 
     whenLeft(leftConsumer: (L) => void): EitherRightConsumption<R>;
+
+    mapAsync<N>(mapping: (R) => Promise<N>): Promise<Either<L, N>>
 }
 
 export interface EitherRightConsumption<R> {
@@ -55,6 +57,10 @@ class Left<L, R> implements Either<L, R>{
             }
         };
     }
+
+    mapAsync<N>(mapping: (R) => Promise<N>): Promise<Either<L, N>> {
+        return Promise.resolve(new Left(this.value));
+    }
 }
 
 class Right<L, R> implements Either<L, R>{
@@ -96,6 +102,11 @@ class Right<L, R> implements Either<L, R>{
                 rightConsumer(r);
             }
         };
+    }
+
+    async mapAsync<N>(mapping: (R) => Promise<N>): Promise<Either<L, N>> {
+        const result = await mapping(this.value);
+        return Promise.resolve(new Right(result));
     }
 }
 

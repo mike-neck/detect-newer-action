@@ -13,6 +13,7 @@ export interface RightConsumption<R> {
 export interface BothBuilder<L, R> {
     left(left: L);
     right(right: R);
+    append(both: Both<L, R>);
 
     build(): Both<L, R>
 }
@@ -58,5 +59,10 @@ class BothImpl<L, R> implements Both<L, R>, BothBuilder<L, R> {
 
     build(): Both<L, R> {
         return this;
+    }
+
+    append(both: Both<L, R>) {
+        both.doLeft(left => this.left(left))
+            .doRight(right => this.right(right));
     }
 }

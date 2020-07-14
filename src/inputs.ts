@@ -4,6 +4,7 @@ import {WorkflowFile} from "./types";
 export interface Inputs {
     outputFilePath: string | null
     excludeActions: string[]
+    token: string
 
     requireInspection(workflowFile: WorkflowFile): boolean
 }
@@ -32,12 +33,17 @@ function getInputFrom(getter: InputGetter): Inputs {
     const exWork = ew == null? "": ew.trim();
     const excludeWorkflows = exWork.split(",");
 
-    return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows);
+    const token = getter.getInput("token");
+    if (token === null) {
+        throw Error("missing parameter [token]");
+    }
+
+    return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows, token);
 }
 
 export module TestingOnly {
-    export function inputs(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[]): Inputs {
-        return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows);
+    export function inputs(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[], token: string): Inputs {
+        return new InputsImpl(outputFilePath, excludeActions, excludeWorkflows, token);
     }
 }
 
@@ -46,11 +52,13 @@ class InputsImpl implements Inputs {
     readonly excludeActions: string[];
     readonly excludeWorkflows: string[];
     readonly outputFilePath: string | null;
+    readonly token: string
 
-    constructor(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[]) {
+    constructor(outputFilePath: string | null, excludeActions: string[], excludeWorkflows: string[], token: string) {
         this.outputFilePath = outputFilePath;
         this.excludeActions = excludeActions;
         this.excludeWorkflows = excludeWorkflows;
+        this.token = token;
     }
 
     requireInspection(workflowFile: WorkflowFile): boolean {
