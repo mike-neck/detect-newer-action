@@ -189,16 +189,20 @@ interface Task {
 // TODO There
 function mkAction(uses: string): Action {
     if (uses.indexOf("/") === -1) {
+        console.debug(`making action of uses: ${uses} => local`);
         return new LocalAction(uses);
     }
     const [owner, actionWithVersion] = uses.split("/");
     if (actionWithVersion.indexOf("@") === -1) {
+        console.debug(`making action of uses: ${uses} => local`);
         return new LocalAction(uses);
     }
     const [action, version] =  actionWithVersion.split("@");
     if (version.length === 0) {
+        console.debug(`making action of uses: ${uses} => local`);
         return new LocalAction(uses);
     }
+    console.debug(`making action of uses: ${uses} => released`);
     return new ReleasedAction(owner, action, version);
 }
 
