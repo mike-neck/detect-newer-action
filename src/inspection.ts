@@ -3,14 +3,11 @@ import {Either, left, right} from "./either";
 import {Inputs} from "./inputs";
 import {Both, bothBuilder} from "./both";
 import {Inspection, InspectionResult} from "./types";
-
-import * as core from "@actions/core";
 import * as github from "@actions/github";
-import {Octokit} from "@octokit/rest";
 
-import { RestEndpointMethods } from "@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types";
-import { OctokitResponse } from "@octokit/types/dist-types/OctokitResponse"
-import { ReposListTagsResponseData } from "@octokit/types/dist-types/generated/Endpoints"
+import {RestEndpointMethods} from "@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types";
+import {OctokitResponse} from "@octokit/types/dist-types/OctokitResponse"
+import {ReposListTagsResponseData} from "@octokit/types/dist-types/generated/Endpoints"
 
 export interface ListTagsApi {
     call(owner: string, repo: string): Promise<Either<number, string>>
@@ -21,6 +18,7 @@ export function listTagApi(inputs: Inputs): ListTagsApi {
     return {
         call(owner: string, repo: string): Promise<Either<number, string>> {
             const f = async () => {
+                console.debug(`owner: ${owner}, repo: ${repo}`);
                 const response: OctokitResponse<ReposListTagsResponseData> = await octokit.repos.listTags({
                     owner: owner,
                     repo: repo
