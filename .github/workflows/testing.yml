@@ -33,3 +33,4 @@ jobs:
           exclude-actions: 'example'
           exclude-workflows: 'example.yml'
           output-file: 'test.json'
+          token: ${{ secrets.GITHUB_TOKEN }}
