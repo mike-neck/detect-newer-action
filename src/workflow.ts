@@ -215,7 +215,9 @@ class LocalAction implements InspectionUnavailableAction {
         this.action = action;
     }
 
-    apiUnavailableReason: string = `${this.action} is local action`;
+    get apiUnavailableReason(): string {
+        return `${this.action} is local action`;
+    }
 }
 
 class ReleasedAction implements InspectionAvailableAction {
