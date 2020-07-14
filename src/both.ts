@@ -23,9 +23,11 @@ export function bothBuilder<L, R>(): BothBuilder<L, R> {
 
 class BothImpl<L, R> implements Both<L, R>, BothBuilder<L, R> {
     get leftCount(): number {
-        return 0;
+        return this.leftValue.length;
     }
-    rightCount: number;
+    get rightCount(): number {
+        return this.rightValue.length;
+    }
 
     private readonly leftValue: L[];
     private readonly rightValue: R[];
