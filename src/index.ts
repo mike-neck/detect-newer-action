@@ -1,7 +1,5 @@
-import * as core from "@actions/core";
 import {listWorkflowFiles, readWorkflowFile} from "./io";
 import {getInputs, Inputs} from "./inputs";
-import {Either, right} from "./either";
 import {readWorkflow} from "./workflow";
 import {InspectionResult} from "./types";
 import {inspectWorkflow, listTagApi} from "./inspection";
