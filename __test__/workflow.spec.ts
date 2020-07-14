@@ -1,5 +1,6 @@
-import {readWorkflow, Step, Steps, Workflow} from "../src/workflow";
+import {readWorkflow, TestOnly, Workflow} from "../src/workflow";
 import {Either, right} from "../src/either";
+import releasedAction = TestOnly.releasedAction;
 
 describe("reading valid yaml with steps(using-action:2, running:2)", () => {
     //language=yaml
@@ -29,16 +30,8 @@ jobs:
         expect<Either<string, Workflow>>(either).toEqual(right({
             jobs: new Map([
                 ["valid-action", [
-                    { name: "checkout", uses: {
-                        owner: "actions",
-                        action: "checkout",
-                        version: "v2"
-                        } },
-                    { name: "setup go", uses: {
-                            owner: "go-community",
-                            action: "setup-go",
-                            version: "master"
-                        }}
+                    { name: "checkout", uses: releasedAction("actions", "checkout", "v2") },
+                    { name: "setup go", uses: releasedAction("go-community", "setup-go", "master")}
                 ]]])
         }))
     })
@@ -110,29 +103,13 @@ jobs:
         expect<Either<string, Workflow>>(either).toEqual(right({
             jobs: new Map([
                 ["valid-action", [
-                    { name: "checkout", uses: {
-                            owner: "actions",
-                            action: "checkout",
-                            version: "v2"
-                        } },
-                    { name: "setup go", uses: {
-                            owner: "go-community",
-                            action: "setup-go",
-                            version: "master"
-                        }}
+                    { name: "checkout", uses: releasedAction("actions", "checkout", "v2") },
+                    { name: "setup go", uses: releasedAction("go-community", "setup-go", "master") }
                 ]],
                 ["another", []],
                 ["final", [
-                    { name: "checkout", uses: {
-                            owner: "actions",
-                            action: "checkout",
-                            version: "v2"
-                        } },
-                    { name: "actions/uploadartifact@v1", uses: {
-                            owner: "actions",
-                            action: "uploadartifact",
-                            version: "v1"
-                        } }
+                    { name: "checkout", uses: releasedAction("actions", "checkout", "v2") },
+                    { name: "actions/uploadartifact@v1", uses: releasedAction("actions", "uploadartifact", "v1") }
                 ]]
             ])
         }))

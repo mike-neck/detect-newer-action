@@ -1,6 +1,5 @@
 import {Either, left, right} from "./either";
 import * as yaml from "js-yaml";
-import exp from "constants";
 import {YAMLException} from "js-yaml";
 
 export interface Workflow {
@@ -14,11 +13,29 @@ export interface Step {
     uses: Action
 }
 
-export interface Action {
-    owner: string | null
-    action: string
-    version: string | null
+export module TestOnly {
+    export function releasedAction(owner: string, action: string, version: string): Action {
+        return new ReleasedAction(owner, action, version);
+    }
 }
+
+export interface InspectionUnavailableAction {
+    owner: null
+    action: string
+    version: null
+
+    apiUnavailableReason: string
+}
+
+export interface InspectionAvailableAction {
+    owner: string
+    action: string
+    version: string
+
+    apiUnavailableReason: null
+}
+
+export type Action = InspectionUnavailableAction | InspectionAvailableAction
 
 interface YamlReader {
     read(data: string): string | object | undefined
@@ -167,26 +184,46 @@ interface Task {
     toStep(): Step
 }
 
+// TODO There are docker type actions.
+// TODO There are actions specified by a commit hash.
+// TODO There
 function mkAction(uses: string): Action {
     if (uses.indexOf("/") === -1) {
-        return {
-            owner: null,
-            action: uses,
-            version: null
-        };
+        return new LocalAction(uses);
     }
     const [owner, actionWithVersion] = uses.split("/");
     if (actionWithVersion.indexOf("@") === -1) {
-        return {
-            owner: owner,
-            action: actionWithVersion,
-            version: null
-        };
+        return new LocalAction(uses);
     }
     const [action, version] =  actionWithVersion.split("@");
-    return {
-        owner: owner,
-        action: action,
-        version: version
-    };
+    if (version.length === 0) {
+        return new LocalAction(uses);
+    }
+    return new ReleasedAction(owner, action, version);
+}
+
+class LocalAction implements InspectionUnavailableAction {
+    readonly owner = null;
+    readonly action: string;
+    readonly version = null;
+
+    constructor(action: string) {
+        this.action = action;
+    }
+
+    apiUnavailableReason: string = `${this.action} is local action`;
+}
+
+class ReleasedAction implements InspectionAvailableAction {
+    readonly action: string;
+    readonly owner: string;
+    readonly version: string;
+
+    constructor(owner: string, action: string, version: string) {
+        this.action = action;
+        this.owner = owner;
+        this.version = version;
+    }
+
+    apiUnavailableReason: null = null;
 }

@@ -1,10 +1,44 @@
 import {Inputs} from "../src/inputs";
 import {InspectionResult, WorkflowFile} from "../src/types";
-import {Steps, Workflow} from "../src/workflow";
-import {ListTagsApi, TestOnly} from "../src/inspection";
+import {Steps, TestOnly, Workflow} from "../src/workflow";
+import {InspectionTestOnly, ListTagsApi} from "../src/inspection";
 import {Either, left, right} from "../src/either";
 import {fail} from "assert";
-import inspectWorkflowForTest = TestOnly.inspectWorkflowForTest;
+import inspectWorkflowForTest = InspectionTestOnly.inspectWorkflowForTest;
+import releasedAction = TestOnly.releasedAction;
+
+const InspectionSpecData = {
+    workflow: {
+        jobs: new Map<string, Steps>(
+            [["test", [
+                {
+                    name: "step-1",
+                    uses: releasedAction(
+                        "user",
+                        "setup",
+                        "v1")
+                }, {
+                    name: "step-2",
+                    uses: releasedAction(
+                        "actions",
+                        "upload",
+                        "v2")
+                }
+            ]], [
+                "release", [
+                    {
+                        name: "step-3",
+                        uses: releasedAction(
+                            "user",
+                            "setup",
+                            "v1")
+                    }
+                ]
+            ]
+            ]
+        )
+    }
+}
 
 describe("api returns no error", () => {
     const inputs: Inputs = {
@@ -16,40 +50,7 @@ describe("api returns no error", () => {
         token: ""
     }
 
-    const workflow: Workflow = {
-        jobs: new Map<string, Steps>(
-            [["test", [
-                {
-                    name: "step-1",
-                    uses: {
-                        owner: "user",
-                        action: "setup",
-                        version: "v1"
-                    }
-                }, {
-                    name: "step-2",
-                    uses: {
-                        owner: "actions",
-                        action: "upload",
-                        version: "v2"
-                    }
-                }
-            ]], [
-                "release", [
-                    {
-                        name: "step-3",
-                        uses: {
-                            owner: "user",
-                            action: "setup",
-                            version: "v1"
-                        }
-                    }
-                ]
-            ]
-            ]
-        )
-    }
-
+    const workflow: Workflow = InspectionSpecData.workflow;
     const api: ListTagsApi = {
         call(owner: string, repo: string): Promise<Either<number, string>> {
             return Promise.resolve(right("v2"));
@@ -79,39 +80,7 @@ describe("api returns error 1 of 3 actions", () => {
         token: ""
     }
 
-    const workflow: Workflow = {
-        jobs: new Map<string, Steps>(
-            [["test", [
-                {
-                    name: "step-1",
-                    uses: {
-                        owner: "user",
-                        action: "setup",
-                        version: "v1"
-                    }
-                }, {
-                    name: "step-2",
-                    uses: {
-                        owner: "actions",
-                        action: "upload",
-                        version: "v2"
-                    }
-                }
-            ]], [
-                "release", [
-                    {
-                        name: "step-3",
-                        uses: {
-                            owner: "user",
-                            action: "setup",
-                            version: "v1"
-                        }
-                    }
-                ]
-            ]
-            ]
-        )
-    }
+    const workflow: Workflow = InspectionSpecData.workflow;
 
     const api: ListTagsApi = {
         call(owner: string, repo: string): Promise<Either<number, string>> {
@@ -151,39 +120,7 @@ describe("api returns reject", () => {
         token: ""
     }
 
-    const workflow: Workflow = {
-        jobs: new Map<string, Steps>(
-            [["test", [
-                {
-                    name: "step-1",
-                    uses: {
-                        owner: "user",
-                        action: "setup",
-                        version: "v1"
-                    }
-                }, {
-                    name: "step-2",
-                    uses: {
-                        owner: "actions",
-                        action: "upload",
-                        version: "v2"
-                    }
-                }
-            ]], [
-                "release", [
-                    {
-                        name: "step-3",
-                        uses: {
-                            owner: "user",
-                            action: "setup",
-                            version: "v1"
-                        }
-                    }
-                ]
-            ]
-            ]
-        )
-    }
+    const workflow: Workflow = InspectionSpecData.workflow;
 
     const api: ListTagsApi = {
         call(owner: string, repo: string): Promise<Either<number, string>> {

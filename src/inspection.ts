@@ -1,4 +1,4 @@
-import {Workflow} from "./workflow";
+import {Action, Workflow} from "./workflow";
 import {Either, left, right} from "./either";
 import {Inputs} from "./inputs";
 import {Both, bothBuilder} from "./both";
@@ -42,7 +42,7 @@ async function apiCall(api: ListTagsApi, owner: string, repo: string): Promise<E
     return api.call(owner, repo)
 }
 
-export module TestOnly {
+export module InspectionTestOnly {
     export async function inspectWorkflowForTest(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, InspectionResult>> {
         return inspectWorkflow(api, inputs, workflow)
     }
@@ -53,8 +53,9 @@ export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow
     for (let [jobName, steps] of workflow.jobs) {
         const inspections = new Array<Inspection>();
         for (let step of steps) {
-            const action = step.uses;
-            if (action.owner == null) {
+            const action: Action = step.uses;
+            if (action.apiUnavailableReason !== null) {
+                builder.left(action.apiUnavailableReason);
                 continue;
             }
             const either = await apiCall(api, action.owner, action.action);
