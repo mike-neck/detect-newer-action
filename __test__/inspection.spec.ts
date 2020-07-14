@@ -12,7 +12,8 @@ describe("api returns no error", () => {
         outputFilePath: "result",
         requireInspection(workflowFile: WorkflowFile): boolean {
             return true;
-        }
+        },
+        token: ""
     }
 
     const workflow: Workflow = {
@@ -74,7 +75,8 @@ describe("api returns error 1 of 3 actions", () => {
         outputFilePath: "result",
         requireInspection(workflowFile: WorkflowFile): boolean {
             return true;
-        }
+        },
+        token: ""
     }
 
     const workflow: Workflow = {
@@ -145,7 +147,8 @@ describe("api returns reject", () => {
         outputFilePath: "result",
         requireInspection(workflowFile: WorkflowFile): boolean {
             return true;
-        }
+        },
+        token: ""
     }
 
     const workflow: Workflow = {
