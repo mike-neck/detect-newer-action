@@ -1,7 +1,7 @@
 import {listWorkflowFiles, readWorkflowFile} from "./io";
 import {getInputs, Inputs} from "./inputs";
 import {readWorkflow} from "./workflow";
-import {InspectionResult} from "./types";
+import {JobInspection} from "./types";
 import {inspectWorkflow, listTagApi} from "./inspection";
 import {Both, bothBuilder} from "./both";
 
@@ -12,7 +12,7 @@ async function run(): Promise<void> {
     console.info(`input: ${inputs}`)
     const both = await inspect(inputs);
     both.doLeft(message => console.warn(`error: ${message}`))
-        .doRight((result: InspectionResult) => {
+        .doRight((result: JobInspection) => {
             result.steps.filter(step => step.currentVersion !== step.usingVersion)
                 .forEach(step => {
                     console.info(`update detected: job=${result.job}, step=${step.step}, action=${step.owner}/${step.action}, current-version=${step.currentVersion}, using-version=${step.usingVersion}`)
@@ -20,11 +20,11 @@ async function run(): Promise<void> {
         });
 }
 
-async function inspect(inputs: Inputs): Promise<Both<string, InspectionResult>> {
+async function inspect(inputs: Inputs): Promise<Both<string, JobInspection>> {
     const listTagsApi = listTagApi(inputs);
 
     const workflowFiles = await listWorkflowFiles();
-    const builder = bothBuilder<string, InspectionResult>();
+    const builder = bothBuilder<string, JobInspection>();
     for (let workflowFile of workflowFiles) {
         if (!inputs.requireInspection(workflowFile)) {
             continue;

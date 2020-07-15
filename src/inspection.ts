@@ -2,7 +2,7 @@ import {Action, Workflow} from "./workflow";
 import {Either, left, right} from "./either";
 import {Inputs} from "./inputs";
 import {Both, bothBuilder} from "./both";
-import {Inspection, InspectionResult} from "./types";
+import {Inspection, inspection, JobInspection} from "./types";
 import * as github from "@actions/github";
 
 import {RestEndpointMethods} from "@octokit/plugin-rest-endpoint-methods/dist-types/generated/method-types";
@@ -43,13 +43,13 @@ async function apiCall(api: ListTagsApi, owner: string, repo: string): Promise<E
 }
 
 export module InspectionTestOnly {
-    export async function inspectWorkflowForTest(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, InspectionResult>> {
+    export async function inspectWorkflowForTest(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, JobInspection>> {
         return inspectWorkflow(api, inputs, workflow)
     }
 }
 
-export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, InspectionResult>> {
-    const builder = bothBuilder<string, InspectionResult>();
+export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow: Workflow): Promise<Both<string, JobInspection>> {
+    const builder = bothBuilder<string, JobInspection>();
     for (let [jobName, steps] of workflow.jobs) {
         const inspections = new Array<Inspection>();
         for (let step of steps) {
@@ -59,16 +59,12 @@ export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow
                 continue;
             }
             const either = await apiCall(api, action.owner, action.action);
-            const result: Either<string, Inspection> = either.map(tag => { return {
-                step: step.name,
-                owner: step.uses.owner === null? "": step.uses.owner,
-                action: step.uses.action,
-                currentVersion: tag,
-                usingVersion: step.uses.version === null ? "": step.uses.version
-            }; }).mapLeft(status =>
+            const result: Either<string, Inspection> = either.map(tag => {
+                return inspection(action.action, action.owner, step.name, tag, action.version);
+            }).mapLeft(status =>
                 `http status: ${status} for job: ${jobName}, step: ${step.name}, action: ${step.uses.owner}/${step.uses.action}`);
             result.whenLeft(message => builder.left(message))
-                .whenRight(inspection => inspections.push(inspection));
+                .whenRight(result => inspections.push(result));
         }
         builder.right({job: jobName, steps: inspections});
     }

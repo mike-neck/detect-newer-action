@@ -1,5 +1,5 @@
 import {Inputs} from "../src/inputs";
-import {InspectionResult, WorkflowFile} from "../src/types";
+import {JobInspection, WorkflowFile} from "../src/types";
 import {Steps, TestOnly, Workflow} from "../src/workflow";
 import {InspectionTestOnly, ListTagsApi} from "../src/inspection";
 import {Either, left, right} from "../src/either";
@@ -62,7 +62,7 @@ describe("api returns no error", () => {
         expect(both.leftCount).toBe(0);
         expect(both.rightCount).toBe(2);
         both.doLeft(msg => { fail(msg) })
-            .doRight((result: InspectionResult) => {
+            .doRight((result: JobInspection) => {
                 result.steps.forEach(ins => {
                     expect(ins.currentVersion).toBe("v2");
                 });
@@ -102,7 +102,7 @@ describe("api returns error 1 of 3 actions", () => {
             expect(msg).toContain("400");
             expect(msg).toContain("action: actions/upload");
 
-        }).doRight((result: InspectionResult) => {
+        }).doRight((result: JobInspection) => {
             result.steps.forEach(ins => {
                 expect(ins.currentVersion).toBe("v2");
             });
