@@ -15,7 +15,9 @@ export interface Inspection {
     usingVersion: string
     currentVersion: string
 
-    result(): ComparisonResult
+    createLogMessage(job: string): string
+
+    compared(): ComparisonResult
 }
 
 export interface ComparisonResult {
@@ -29,6 +31,18 @@ export interface ComparisonResult {
 
 export function inspection(action: string, owner: string, step: string, currentVersion: string, usingVersion: string): Inspection {
     return new InspectionImpl(action, owner, step, currentVersion, usingVersion);
+}
+
+export interface JobInspectionJson {
+    job: string
+    steps: InspectionJson[]
+}
+
+export interface InspectionJson {
+    step: string
+    action: string
+    usingVersion: string
+    currentVersion: string
 }
 
 class InspectionImpl implements Inspection {
@@ -47,9 +61,13 @@ class InspectionImpl implements Inspection {
         this.usingVersion = usingVersion;
     }
 
-    result(): ComparisonResult {
+    compared(): ComparisonResult {
         const detectNew = this.usingVersion < this.currentVersion;
         return new ComparisonResultImpl(detectNew, this.currentVersion, this.usingVersion);
+    }
+
+    createLogMessage(job: string): string {
+        return `update detected: job=${job}, step=${this.step}, action=${this.owner}/${this.action}, current-version=${this.currentVersion}, using-version=${this.usingVersion}`;
     }
 }
 

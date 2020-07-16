@@ -55,14 +55,14 @@ export async function inspectWorkflow(api: ListTagsApi, inputs: Inputs, workflow
         for (let step of steps) {
             const action: Action = step.uses;
             if (action.apiUnavailableReason !== null) {
-                builder.left(action.apiUnavailableReason);
+                builder.left(`skipping job: ${jobName}, step:${step.name}, action: ${action.action}, because ${action.apiUnavailableReason}`);
                 continue;
             }
             const either = await apiCall(api, action.owner, action.action);
             const result: Either<string, Inspection> = either.map(tag => {
                 return inspection(action.action, action.owner, step.name, tag, action.version);
             }).mapLeft(status =>
-                `http status: ${status} for job: ${jobName}, step: ${step.name}, action: ${step.uses.owner}/${step.uses.action}`);
+                `error job: ${jobName}, step: ${step.name}, action: ${step.uses.owner}/${step.uses.action}, because http error status: ${status}`);
             result.whenLeft(message => builder.left(message))
                 .whenRight(result => inspections.push(result));
         }

@@ -16,6 +16,9 @@ inputs:
   token:
     description: "Github token that is able to call repo-list-tags api.(secrets.GITHUB_TOKEN)"
     required: true
+outputs:
+  diff:
+    description: "Diff of action's version in json format."
 branding:
   icon: package
   color: yellow

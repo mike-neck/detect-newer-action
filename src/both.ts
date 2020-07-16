@@ -3,6 +3,10 @@ export interface Both<L, R> {
     leftCount: number
     rightCount: number
 
+    rightAll: R[]
+
+    map<N>(mapping: (R) => N): Both<L, N>
+
     doLeft(consumer: (L) => void): RightConsumption<R>
 }
 
@@ -19,10 +23,11 @@ export interface BothBuilder<L, R> {
 }
 
 export function bothBuilder<L, R>(): BothBuilder<L, R> {
-    return new BothImpl<L, R>();
+    return new BothImpl<L, R>(new Array<L>(), new Array<R>());
 }
 
 class BothImpl<L, R> implements Both<L, R>, BothBuilder<L, R> {
+
     get leftCount(): number {
         return this.leftValue.length;
     }
@@ -33,9 +38,9 @@ class BothImpl<L, R> implements Both<L, R>, BothBuilder<L, R> {
     private readonly leftValue: L[];
     private readonly rightValue: R[];
 
-    constructor() {
-        this.leftValue = new Array<L>();
-        this.rightValue = new Array<R>();
+    constructor(l: L[], r: R[]) {
+        this.leftValue = l;
+        this.rightValue = r;
     }
 
     doLeft(leftConsumer: (L) => void): RightConsumption<R> {
@@ -64,5 +69,14 @@ class BothImpl<L, R> implements Both<L, R>, BothBuilder<L, R> {
     append(both: Both<L, R>) {
         both.doLeft(left => this.left(left))
             .doRight(right => this.right(right));
+    }
+
+    map<N>(mapping: (R) => N): Both<L, N> {
+        const mapped = this.rightValue.map(mapping);
+        return new BothImpl(this.leftValue, mapped);
+    }
+
+    get rightAll(): R[] {
+        return this.rightValue;
     }
 }
