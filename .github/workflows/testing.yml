@@ -28,9 +28,15 @@ jobs:
           npm run pack
 
       - name: example
+        id: example
         uses: ./
         with:
           exclude-actions: 'example'
           exclude-workflows: 'example.yml'
           output-file: 'test.json'
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: show result
+        run: echo "${OUTPUT}"
+        env:
+          OUTPUT: ${{ steps.example.diff }}
