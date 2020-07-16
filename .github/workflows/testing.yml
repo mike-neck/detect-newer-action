@@ -40,3 +40,6 @@ jobs:
         run: echo "${OUTPUT}"
         env:
           OUTPUT: ${{ steps.example.diff }}
+
+      - name: show json from file
+        run: cat ./test.json
