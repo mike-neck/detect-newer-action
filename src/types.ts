@@ -62,7 +62,9 @@ class InspectionImpl implements Inspection {
     }
 
     compared(): ComparisonResult {
-        const detectNew = this.usingVersion < this.currentVersion;
+        const detectNew =
+            !this.currentVersion.startsWith(this.usingVersion) &&
+            this.usingVersion < this.currentVersion;
         return new ComparisonResultImpl(detectNew, this.currentVersion, this.usingVersion);
     }
 

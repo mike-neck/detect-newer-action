@@ -36,10 +36,6 @@ jobs:
           output-file: 'test.json'
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: show project directory
-        run: ls -la
-        if: always()
-
       - name: show result
         run: echo "${OUTPUT}"
         env:
