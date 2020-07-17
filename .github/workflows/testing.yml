@@ -27,6 +27,10 @@ jobs:
           npm run build
           npm run pack
 
+      - name: show project directory
+        run: ls -la
+        if: always()
+
       - name: example
         id: example
         uses: ./

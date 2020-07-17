@@ -37,9 +37,9 @@ export function setError(e: string) {
 const errorOnCreatingDirectory: (directory: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
     (directory, failure) =>
         err =>
-            failure(`error: creating directory[${directory}] by ${err?.code} ${err?.name} ${err?.message}`);
+            failure(`creating directory[${directory}] by ${err?.code} ${err?.name} ${err?.message}`);
 
 const errorOnWritingJsonFile: (outputFilePath: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
     (outputFilePath, failure) =>
         err =>
-            failure(`error: writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}(${err})`);
+            failure(`writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}(${err})`);
