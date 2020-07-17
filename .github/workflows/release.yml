@@ -1,0 +1,75 @@
+on:
+  workflow_dispatch:
+    inputs:
+      release-level:
+        description: 'Release level available values: major, minor, patch'
+        required: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    if: contains(github.event.ref, 'master')
+
+    steps:
+      - name: check out
+        uses: actions/checkout@v2
+
+      - name: setup node
+        uses: actions/setup-node@v1.4.2
+        with:
+          node-version: 12
+
+      - name: setup project
+        run: npm install
+
+      - name: build
+        run: |
+          npm run build
+          npm run pack
+
+      - name: commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4.1.6
+        with:
+          commit_message: Build dist/index.js for release.
+
+  release:
+    name: release
+    runs-on: ubuntu-20.04
+    needs: build
+
+    steps:
+      - name: verify inputs
+        run: echo "${LEVEL}" | grep -E -q '(major|minor|patch)'
+        env:
+          LEVEL: ${{ github.event.inputs.release-level }}
+
+      - name: check out
+        uses: actions/checkout@v2
+
+      - name: current version
+        uses: actions-ecosystem/action-get-latest-tag@v1
+        id: current-version
+
+      - name: calculate next version
+        id: next-version
+        uses: actions-ecosystem/action-bump-semver@v1
+        with:
+          current_version: ${{ steps.current-version.outputs.tag }}
+          level: ${{ github.event.inputs.release-level }}
+
+      - name: push tag
+        uses: actions-ecosystem/action-push-tag@v1
+        with:
+          tag: ${{ steps.next-version.outputs.new_version }}
+          message: "Release version ${{ steps.next-version.outputs.new_version }}"
+
+      - name: create release
+        uses: actions/create-release@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.next-version.outputs.new_version }}
+          release_name: Release ${{ steps.next-version.outputs.new_version }}
+          draft: false
+          prerelease: false
