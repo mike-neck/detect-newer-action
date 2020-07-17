@@ -2837,7 +2837,8 @@ class InspectionImpl {
         this.usingVersion = usingVersion;
     }
     compared() {
-        const detectNew = this.usingVersion < this.currentVersion;
+        const detectNew = !this.currentVersion.startsWith(this.usingVersion) &&
+            this.usingVersion < this.currentVersion;
         return new ComparisonResultImpl(detectNew, this.currentVersion, this.usingVersion);
     }
     createLogMessage(job) {
@@ -10996,14 +10997,12 @@ async function writeJsonFileIfRequired(inputs, json) {
         return Promise.resolve();
     }
     return new Promise((success, failure) => {
-        console.info(`output file ${outputFilePath}`);
         const directory = path.join(outputFilePath, "..");
         fs.stat(directory, (err, _) => {
             if (err && err.code == "ENOENT")
-                fs.mkdir(directory, errorOnCreatingDirectory(directory, failure));
+                fs.mkdir(directory, { recursive: true }, errorOnCreatingDirectory(directory, failure));
         });
-        console.info(`write file ${outputFilePath}`);
-        fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, errorOnWritingJsonFile(outputFilePath, failure));
+        fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, errorOnWritingJsonFile(outputFilePath, success, failure));
     });
 }
 function setOutput(json) {
@@ -11013,8 +11012,19 @@ function setError(e) {
     core.setFailed(`unexpected error: ${e}`);
 }
 exports.setError = setError;
-const errorOnCreatingDirectory = (directory, failure) => err => failure(`error: creating directory[${directory}] by ${err === null || err === void 0 ? void 0 : err.code} ${err === null || err === void 0 ? void 0 : err.name} ${err === null || err === void 0 ? void 0 : err.message}`);
-const errorOnWritingJsonFile = (outputFilePath, failure) => err => failure(`error: writing json file[${outputFilePath}] by ${err === null || err === void 0 ? void 0 : err.code} ${err === null || err === void 0 ? void 0 : err.name} ${err === null || err === void 0 ? void 0 : err.message}`);
+const errorOnCreatingDirectory = (directory, failure) => err => {
+    if (err !== null) {
+        failure(`creating directory[${directory}] by ${err === null || err === void 0 ? void 0 : err.code} ${err === null || err === void 0 ? void 0 : err.name} ${err === null || err === void 0 ? void 0 : err.message}`);
+    }
+};
+const errorOnWritingJsonFile = (outputFilePath, success, failure) => err => {
+    if (err !== null) {
+        failure(`writing json file[${outputFilePath}] by ${err === null || err === void 0 ? void 0 : err.code} ${err === null || err === void 0 ? void 0 : err.name} ${err === null || err === void 0 ? void 0 : err.message}(${err})`);
+    }
+    else {
+        success();
+    }
+};
 
 
 /***/ }),
