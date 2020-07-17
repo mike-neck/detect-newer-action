@@ -27,10 +27,6 @@ jobs:
           npm run build
           npm run pack
 
-      - name: show project directory
-        run: ls -la
-        if: always()
-
       - name: example
         id: example
         uses: ./
@@ -39,6 +35,10 @@ jobs:
           exclude-workflows: 'example.yml'
           output-file: 'test.json'
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: show project directory
+        run: ls -la
+        if: always()
 
       - name: show result
         run: echo "${OUTPUT}"
