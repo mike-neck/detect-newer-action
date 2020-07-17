@@ -19,16 +19,13 @@ async function writeJsonFileIfRequired(inputs: Inputs, json: string): Promise<vo
         console.info(`output file ${outputFilePath}`);
         const directory = path.join(outputFilePath, "..");
         fs.stat(directory, (err, _) => {
-            console.info(`creating dir ${directory} by ${err?.name} ${err?.code}, ${err?.message}`);
             if (err && err.code == "ENOENT") fs.mkdir(directory, (e) => {
-                console.info(`creating directory failed ${directory} by ${e?.name} ${e?.code} ${e?.message}`);
-                failure(e);
+                failure(`error: creating directory[${directory}] by ${e?.code} ${e?.name} ${e?.message}`);
             });
         });
         console.info(`write file ${outputFilePath}`);
         fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, err => {
-            console.info(`creating directory failed ${outputFilePath} by ${err?.name} ${err?.code} ${err?.message}`);
-            failure(err);
+            failure(`error: writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}`);
         });
     });
 }
