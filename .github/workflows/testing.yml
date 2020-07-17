@@ -37,9 +37,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: show result
-        run: echo "${OUTPUT}"
+        run: echo "${OUTPUT}" | jq '.'
         env:
-          OUTPUT: ${{ steps.example.diff }}
+          OUTPUT: ${{ steps.example.outputs.diff }}
 
       - name: show json from file
-        run: cat ./test.json
+        run: jq '.' ./test.json
