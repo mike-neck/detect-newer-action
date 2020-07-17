@@ -19,14 +19,10 @@ async function writeJsonFileIfRequired(inputs: Inputs, json: string): Promise<vo
         console.info(`output file ${outputFilePath}`);
         const directory = path.join(outputFilePath, "..");
         fs.stat(directory, (err, _) => {
-            if (err && err.code == "ENOENT") fs.mkdir(directory, (e) => {
-                failure(`error: creating directory[${directory}] by ${e?.code} ${e?.name} ${e?.message}`);
-            });
+            if (err && err.code == "ENOENT") fs.mkdir(directory, errorOnCreatingDirectory(directory, failure));
         });
         console.info(`write file ${outputFilePath}`);
-        fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, err => {
-            failure(`error: writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}`);
-        });
+        fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, errorOnWritingJsonFile(outputFilePath, failure));
     });
 }
 
@@ -37,3 +33,13 @@ function setOutput(json: string) {
 export function setError(e: string) {
     core.setFailed(`unexpected error: ${e}`);
 }
+
+const errorOnCreatingDirectory: (directory: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
+    (directory, failure) =>
+        err =>
+            failure(`error: creating directory[${directory}] by ${err?.code} ${err?.name} ${err?.message}`);
+
+const errorOnWritingJsonFile: (outputFilePath: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
+    (outputFilePath, failure) =>
+        err =>
+            failure(`error: writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}`);
