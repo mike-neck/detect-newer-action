@@ -16,13 +16,11 @@ async function writeJsonFileIfRequired(inputs: Inputs, json: string): Promise<vo
         return Promise.resolve();
     }
     return new Promise((success, failure) => {
-        console.info(`output file ${outputFilePath}`);
         const directory = path.join(outputFilePath, "..");
         fs.stat(directory, (err, _) => {
-            if (err && err.code == "ENOENT") fs.mkdir(directory, errorOnCreatingDirectory(directory, failure));
+            if (err && err.code == "ENOENT") fs.mkdir(directory, {recursive: true}, errorOnCreatingDirectory(directory, failure));
         });
-        console.info(`write file ${outputFilePath}`);
-        fs.writeFile(outputFilePath, json, { encoding: "utf-8" }, errorOnWritingJsonFile(outputFilePath, failure));
+        fs.writeFile(outputFilePath, json, {encoding: "utf-8"}, errorOnWritingJsonFile(outputFilePath, success, failure));
     });
 }
 
@@ -36,10 +34,18 @@ export function setError(e: string) {
 
 const errorOnCreatingDirectory: (directory: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
     (directory, failure) =>
-        err =>
-            failure(`creating directory[${directory}] by ${err?.code} ${err?.name} ${err?.message}`);
+        err => {
+            if (err !== null) {
+                failure(`creating directory[${directory}] by ${err?.code} ${err?.name} ${err?.message}`);
+            }
+        };
 
-const errorOnWritingJsonFile: (outputFilePath: string, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
-    (outputFilePath, failure) =>
-        err =>
-            failure(`writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}(${err})`);
+const errorOnWritingJsonFile: (outputFilePath: string, success: () => void, failure: (p?: any) => void) => (err: NodeJS.ErrnoException | null) => void =
+    (outputFilePath, success, failure) =>
+        err => {
+            if (err !== null) {
+                failure(`writing json file[${outputFilePath}] by ${err?.code} ${err?.name} ${err?.message}(${err})`);
+            } else {
+                success();
+            }
+        };
